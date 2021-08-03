@@ -1,24 +1,11 @@
-import joblib
 from flask import Flask, request
-
-import scipy as sp
+import joblib
 # from joblib import load
 
 app = Flask(__name__)
 
 model = joblib.load('model_file.joblib')
 
-
-# def to_sparse(data):
-#     return sp.sparse.csr_matrix(data)
-
-
-# def to_dense(data):
-#     return sp.sparse.csr_matrix.todense(data)
-
-
-# to_dense = FunctionTransformer(to_dense)
-# to_sparse_transformer = FunctionTransformer(to_sparse)
 
 
 @app.route("/", methods=['POST'])
@@ -31,8 +18,13 @@ def index():
     listing_type = req_data['listing_type']
     description = req_data['description']
 
+    # make sure input to predict is in this order 
+    # listing_type	bedrooms	bathrooms	area	location	description
     predicted_price = model.predict(
-       [ [num_of_bathrooms, num_of_bedrooms, area, location, listing_type, description]])
+       [ [listing_type, num_of_bedrooms, num_of_bathrooms, area, location, description]])
+
+    predicted_price = predicted_price[0]
+
     return {
         "price": predicted_price
     }
